@@ -1,12 +1,12 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: md:myst,ipynb,py:percent
+#     formats: py:percent
 #     text_representation:
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.16.6
+#       jupytext_version: 1.16.7
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -31,8 +31,8 @@
 #
 # The mAb in the mobile phase is able to bind to the stationary phase in two different states. This is implemented in the binding model, where the salt component is assigned one, and the mAb component "A" is assigned two `bound_states`. `is_kinetic`is set to `False`to simulate the establishment of a rapid equilibrium between bound and unbound particles in the mobile phase. This is sensible, because the high values of the adsorption and desorption rates (Table 3) lead to frequent changes of the binding states of the particles. This can greatly compromise the compilation time of the simulation.  
 # All numerical values from `adsoption_rate` to `conversion_rate` are taken from Table 3; "The maximum salt concentration in the mobile phase during elution was used for `reference_liquid_phase_conc` and the column capacity for `reference_solid_phase_conc` (Table A1, GRM parameters).  <br>
-# The parameters of the `conversion_rate` are listed in the component major order for all `bound_states`: <br>
-# [comp0fromBnd0toBnd0, comp1fromBnd0toBnd0, comp1fromBnd0toBnd1, comp1fromBnd1toBnd0, comp1fromBnd1toBnd1] <br>
+# The parameters of the `conversion_rate` are listed in a component-row-major ordering for all `bound_states`: <br>
+# [comp0fromBnd0toBnd0, comp1fromBnd0toBnd0, comp1fromBnd0toBnd1, comp1fromBnd1toBnd0, comp1fromBnd1toBnd1]  (https://forum.cadet-web.de/t/reference-simulation-for-multi-state-sma/818/8) <br>
 # The conversion rates within the same bound state are set to 0.0. 
 
 # %%
@@ -56,7 +56,7 @@ binding_model.adsorption_rate = [0.0, 1.1e31, 7.7e26 ] #k_a
 binding_model.desorption_rate = [0.0, 5.9e31, 2.0e36] #k_d
 binding_model.characteristic_charge = [0.0, 9.6, 24.7] #ν
 binding_model.steric_factor = [0.0, 47.8, 65.9] #σ
-binding_model.conversion_rate = [0.0, 0.0, 9.4e39, 9.5, 0.0] 
+binding_model.conversion_rate = [0.0, 0.0, 9.4e39, 9.5, 0.0] #k
 binding_model.capacity = 223.55 #Λ
 binding_model.reference_liquid_phase_conc = 520.0 #c_ref
 binding_model.reference_solid_phase_conc = 223.55 #q_ref
