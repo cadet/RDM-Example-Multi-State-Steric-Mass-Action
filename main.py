@@ -99,13 +99,29 @@ def run_command(command):
     return subprocess.run(command, shell=True, check=True)
 
 
+def remove_non_jupytext_files(file_list):
+    """
+    Filter out all python files that do not have a 'jupytext:' header section.
+
+    :param file_list:
+    :return:
+    """
+    filtered_list = []
+    for file in file_list:
+        with open(file, "r") as handle:
+            lines = handle.readlines()
+        if any("jupytext:" in line for line in lines):
+            filtered_list.append(file)
+    return filtered_list
+
+
 def create_output(root_path: Path, output_path: Path, n_cores=1):
     """Create solution files.
 
     Parameters
     ----------
     root_path : Path
-        Root directory wherein all .md files are located
+        Root directory wherein all .py files are located
     output_path : Path
         Root directory where all compiled .ipynbs should be placed
     n_cores : int, optional
@@ -120,27 +136,31 @@ def create_output(root_path: Path, output_path: Path, n_cores=1):
     shutil.copytree(root_path, output_path)
 
     # Find all myst files recursively
-    myst_files = list(output_path.glob("**/*.md"))
+    python_files = list(output_path.glob("**/*.py"))
 
     # Filter out checkpoints
-    myst_files = [
-        file for file in myst_files
-        if (".ipynb_checkpoints" not in file.as_posix())
+    python_files = [
+        file for file in python_files if (".ipynb_checkpoints" not in file.as_posix())
     ]
 
+    # Filter out python files that are not marked for jupytext conversion
+    python_files = remove_non_jupytext_files(python_files)
+
     # Make ipynbs
-    ipynb_files = [file.with_suffix(".ipynb") for file in myst_files]
+    ipynb_files = [file.with_suffix(".ipynb") for file in python_files]
 
     # Run jupytext for each myst file
     run_func_over_args_list(
-        func=convert_myst_to_ipynb,
-        args_list=[(myst_path.as_posix(), ipynb_path.as_posix()) for myst_path, ipynb_path in
-                   zip(myst_files, ipynb_files)],
-        n_cores=n_cores
+        func=convert_python_to_ipynb,
+        args_list=[
+            (python_path.as_posix(), ipynb_path.as_posix())
+            for python_path, ipynb_path in zip(python_files, ipynb_files)
+        ],
+        n_cores=n_cores,
     )
 
 
-def convert_myst_to_ipynb(myst_file_path, ipynb_file_path):
+def convert_python_to_ipynb(myst_file_path, ipynb_file_path):
     """Run jupytext with --output ipynb flag on myst_file_path. Will skip README files.
     Will run the jupyter notebooks.
 
@@ -158,7 +178,9 @@ def convert_myst_to_ipynb(myst_file_path, ipynb_file_path):
     """
     if "README" in myst_file_path:
         return
-    results = run_command(f'jupytext --output "{ipynb_file_path}" --execute "{myst_file_path}"')
+    results = run_command(
+        f'jupytext --output "{ipynb_file_path}" --execute "{myst_file_path}"'
+    )
     return results
 
 
@@ -170,8 +192,8 @@ def main(repo: ProjectRepo, options, **kwargs):
     -------
     None
     """
-    parser = argparse.ArgumentParser(description='Perform post-commit tasks.')
-    parser.add_argument('--n_cores', help='Number of cores to use.')
+    parser = argparse.ArgumentParser(description="Perform post-commit tasks.")
+    parser.add_argument("--n_cores", help="Number of cores to use.")
 
     args = parser.parse_args()
 
@@ -187,14 +209,14 @@ def main(repo: ProjectRepo, options, **kwargs):
     create_output(
         root_path=repo.path / options.source_directory,
         output_path=repo.output_path / options.source_directory,
-        n_cores=args.n_cores
+        n_cores=args.n_cores,
     )
 
 
 if __name__ == "__main__":
     options = Options()
-    options.commit_message = 'Trying out new things'
-    options.debug = False
+    options.commit_message = "Trying out new things"
+    options.debug = True
     options.push = False
     options.source_directory = "src"
     main(options)

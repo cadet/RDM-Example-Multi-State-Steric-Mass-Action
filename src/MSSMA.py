@@ -102,10 +102,6 @@ flow_sheet.add_connection(column, outlet)
 
 
 # %% [markdown]
-# #```{figure} 
-# #Events of load-wash-elute process using a single inlet and modifying its concentration.
-# #```
-#
 # The following process simulates the load-wash-elute (lwe) CEX under overloaded conditions with a mAb feed concentration of 118.2 g/L = 0.106 mM (3.2. Model calibration). The salt and protein concentrations of the inlet during every step of the lwe are specified using `events`. A linear salt gradient is implemented for elution. The process protocol is taken from Table A1. <br>
 # The plot of the `simulation_results` shows a "characteristic "knive blade" shape" (4.1. Standart SMA model) of the large elution peak of the protein. This is the result of complex binding behaviour between the mAb and the tentacle resin (5. Conclusions and outlook). The Multi-State Steric Mass Action Model is able to "quantitatively reproduce" the experimental data (Fig.&nbsp;7d, 4.3. Discussion).
 
@@ -145,7 +141,7 @@ if __name__ == '__main__':
     simulation_results.solution.column.outlet.plot(secondary_axis=sec)
 
 # %%
-column.parameters
+#column.parameters
 
 # %%
-simulation_results.time_elapsed
+#simulation_results.time_elapsed
