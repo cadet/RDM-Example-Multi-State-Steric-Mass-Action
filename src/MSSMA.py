@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.16.6
+#       jupytext_version: 1.16.7
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -26,7 +26,7 @@
 # In their study, Diedrich et al. examined the binding behavior of a therapeutic monoclonal antibody (mAb) from a CHO culture on Fractogel EMD SO₃⁻. This tentacle resin is used for cation exchange chromatography (CEX) with a high selectivity. Under four different loading experiments, the elution profile of the protein was examined and found to exhibit a "shoulder under overloaded conditions". This is a result of complex binding behaviour between mAb and tentacle resin. The experimental data can be replicated with CADET-Process using the Multi-State Steric Mass Action model. The mAb is assumed to have two distinct binding states with the stationary phase in the column. Components are able to alternate between the bound states with given conversion rates. They exhibit different binding behavior based on their binding state such as different sorption rates, characteristic charges and steric factors. The protein is treated with a Load-Wash-Elute process with a linear salt gradient for elution from the column.
 #
 # In the example covered in the paper, the mAb in the mobile phase is able to bind to the stationary phase in two different states. This is implemented in the binding model, where the salt component is assigned one, and the mAb component "A" is assigned two `bound_states`. `is_kinetic`is set to `False`to simulate the establishment of a rapid equilibrium between bound and unbound particles in the column. This is sensible, because of the high values of the adsorption and desorption rates (Table 3).
-# All numerical values from `adsoption_rate` to `conversion_rate` are taken from Table 3; The maximal salt concentration in the mobile phase during elution was used for `reference_liquid_phase_conc` and the column capacity for `reference_solid_phase_conc` (Table A1).  <br>
+# All numerical values from `adsoption_rate` to `conversion_rate` are taken from Table 3. The maximal salt concentration in the mobile phase during elution was used for `reference_liquid_phase_conc` and the column capacity for `reference_solid_phase_conc` (Table A1).  <br>
 # The parameters of the `conversion_rate` are listed in a component-row-major ordering for all `bound_states`: <br>
 #
 # ```
@@ -54,16 +54,16 @@ component_system.add_component('A')
 
 # Binding Model
 binding_model = MultistateStericMassAction(component_system, name='MultistateSMA')
-binding_model.is_kinetic = False
 binding_model.bound_states = [1, 2]
-binding_model.adsorption_rate = [0.0, 1.1e31, 7.7e26 ]  # k_a [-]
-binding_model.desorption_rate = [0.0, 5.9e31, 2.0e36]  # k_d [-]
+binding_model.is_kinetic = False
+binding_model.adsorption_rate = [0.0, 1.1e31, 7.7e26 ]  # k_a [m_MP³ / (m_SP³ * s)]
+binding_model.desorption_rate = [0.0, 5.9e31, 2.0e36]  # k_d [1 / s]
 binding_model.characteristic_charge = [0.0, 9.6, 24.7]  # ν [-]
-binding_model.steric_factor = [0.0, 47.8, 65.9]  # σ
-binding_model.conversion_rate = [0.0, 0.0, 9.4e39, 9.5, 0.0]  # k
-binding_model.capacity = 223.55  # Λ
-binding_model.reference_liquid_phase_conc = 520.0  # c_ref
-binding_model.reference_solid_phase_conc = 223.55  # q_ref
+binding_model.steric_factor = [0.0, 47.8, 65.9]  # σ [-]
+binding_model.conversion_rate = [0.0, 0.0, 9.4e39, 9.5, 0.0]  # k [1 / s]
+binding_model.capacity = 223.55  # Λ [mM]
+binding_model.reference_liquid_phase_conc = 520.0  # c_ref [mM]
+binding_model.reference_solid_phase_conc = 223.55  # q_ref [mM]
 
 # %% [markdown]
 # ```{figure} ./figures/flow_sheet_concentration.svg
@@ -79,22 +79,22 @@ binding_model.reference_solid_phase_conc = 223.55  # q_ref
 # %%
 #Unit Operations
 inlet = Inlet(component_system, name='inlet')
-inlet.flow_rate = 4.0333e-8  #2.42 mL/min -> 4.03e−8 m³/s 
+inlet.flow_rate = 4.0333e-8  # 2.42 mL / min -> 4.03e−8 m³ / s 
 
 #Transport Model
 column = GeneralRateModel(component_system, name='column')
 column.binding_model = binding_model
-column.length = 0.215 #L
-column.diameter = 0.0115 
-column.bed_porosity = 0.34  #ε_c
-column.particle_radius = 3.25e-5 #r_p
-column.particle_porosity = 0.39 #ε_p 
-column.axial_dispersion = 10.0e-7 #D_ax
-column.film_diffusion = column.n_comp*[2.0e-5] #k_f
-column.pore_diffusion = column.n_comp*[9.0e-12] #D_p
-column.surface_diffusion = column.n_bound_states*[0.0]
-column.c = [69.97, 0.0] 
-column.q = [binding_model.capacity, 0.0, 0.0] 
+column.length = 0.215  # L [m]
+column.diameter = 0.0115  # L [m]
+column.bed_porosity = 0.34  # ε_c [-]
+column.particle_radius = 3.25e-5  # r_p [m]
+column.particle_porosity = 0.39  # ε_p [-] 
+column.axial_dispersion = 10.0e-7  # D_ax [m² / s]
+column.film_diffusion = column.n_comp * [2.0e-5]  # k_f [m / s]
+column.pore_diffusion = column.n_comp * [9.0e-12]  # D_p [m² / s]
+column.surface_diffusion = column.n_bound_states * [0.0]  # [m² / s]
+column.c = [69.97, 0.0]  # [mM]
+column.q = [binding_model.capacity, 0.0, 0.0]  # [mM]
 
 outlet = Outlet(component_system, name='outlet')
 
@@ -117,11 +117,11 @@ flow_sheet.add_connection(column, outlet)
 # %%
 process = Process(flow_sheet, 'lwe')
 
-load_duration = 74.15 * 60
-wash_duration = 27.7 * 60
+load_duration = 74.15 * 60  # [s]
+wash_duration = 27.7 * 60  # [s]
 t_gradient_start = load_duration + wash_duration
-elute_duration = 88.1 * 60
-elution_slope = 0.053 
+elute_duration = 88.1 * 60  # [s]
+elution_slope = 0.053  # [mM / s]
 
 process.cycle_time = t_gradient_start + elute_duration
 
