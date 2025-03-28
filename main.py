@@ -108,7 +108,7 @@ def remove_non_jupytext_files(file_list):
     """
     filtered_list = []
     for file in file_list:
-        with open(file, "r") as handle:
+        with open(file, "r", encoding="utf8") as handle:
             lines = handle.readlines()
         if any("jupytext:" in line for line in lines):
             filtered_list.append(file)
