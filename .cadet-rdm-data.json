@@ -6,6 +6,8 @@
   "cadet_rdm_version": "0.0.44",
   "output_remotes": {
     "output_folder_name": "output",
-    "output_remotes": {}
+    "output_remotes": {
+      "origin": "git@github.com:cadet/RDM-Example-Multi-State-Steric-Mass-Action-Output.git"
+    }
   }
 }
