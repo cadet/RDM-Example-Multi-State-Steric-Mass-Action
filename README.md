@@ -1,6 +1,6 @@
 # Multi-State Steric Mass Action with CADET
 
-This repository contains an example simulation of the elution of a monoclonal antibody (mAb) on the tentacle resin Fractogel EMD SO₃⁻ using **CADET-Process** and **CADET-RDM**. A **Multi-State Steric Mass Action** binding model is used where the mAb in the mobile phase is able to bind to the stationary phase in two different states. 
+This repository contains an example simulation of the elution of a monoclonal antibody (mAb) on the tentacle resin Fractogel EMD SO₃⁻ using **CADET-Process** and **CADET-RDM**. A **General Rate Model (GRM)** and a **Multi-State Steric Mass Action** binding model are used to simulate how the mAb in the mobile phase is able to bind to the stationary phase in two different states. 
 
 This example reproduces part of the case study from:
 * *"Multi-state steric mass action model and case study on complex high loading behavior of mAb on ion exchange tentacle resin"*
@@ -54,4 +54,4 @@ The results will be stored in the `src` folder inside the `output` directory.
 ## Output Repository
 
 The output data for this case study can be found here:
-[https://github.com/cadet/RDM-Example-Multi-State-Steric-Mass-Action-Output](https://github.com/cadet/RDM-Example-Multi-State-Steric-Mass-Action-Output)
+[Link to Output Repository](https://github.com/cadet/RDM-Example-Multi-State-Steric-Mass-Action-Output)
