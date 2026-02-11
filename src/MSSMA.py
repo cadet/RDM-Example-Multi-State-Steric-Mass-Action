@@ -39,6 +39,9 @@
 # ```
 #  The conversion rates within the same bound state are set to 0.0. For further detail please refer to the CADET forum post on [reference simulations for multi-state SMA](https://forum.cadet-web.de/t/reference-simulation-for-multi-state-sma/818/8).
 
+# %% [markdown]
+# ## Setup
+
 # %%
 import numpy as np
 
@@ -47,13 +50,15 @@ from CADETProcess.processModel import MultistateStericMassAction
 from CADETProcess.processModel import Inlet, GeneralRateModel, Outlet
 from CADETProcess.processModel import FlowSheet
 from CADETProcess.processModel import Process
+# %% [markdown]
+# ### Component System
 
-# Component System
 component_system = ComponentSystem()
 component_system.add_component('Salt')
 component_system.add_component('A')
 
-# Binding Model
+# %% [markdown]
+# ### Binding Model
 binding_model = MultistateStericMassAction(component_system, name='MultistateSMA')
 binding_model.bound_states = [1, 2]
 binding_model.is_kinetic = False
@@ -77,8 +82,9 @@ binding_model.reference_solid_phase_conc = 223.55  # q_ref [mM]
 # The inital concentrations of salt and protein ([3.1 Experimental](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#sec0070)) are given by `column.c` for the mobile phase and `column.q` for the bound states. 
 # All other numerical values are taken from [Table A1](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#tbl0020).
 
+# %% [markdown]
+# ### Unit Operations
 # %%
-#Unit Operations
 inlet = Inlet(component_system, name='inlet')
 inlet.flow_rate = 4.0333e-8  # 2.42 mL / min -> 4.03e−8 m³ / s 
 
@@ -98,8 +104,9 @@ column.c = [69.97, 0.0]  # [mM]
 column.q = [binding_model.capacity, 0.0, 0.0]  # [mM]
 
 outlet = Outlet(component_system, name='outlet')
+# %% [markdown]
+# ### Flow Sheet
 
-# Flow Sheet
 flow_sheet = FlowSheet(component_system)
 
 flow_sheet.add_unit(inlet)
@@ -109,6 +116,8 @@ flow_sheet.add_unit(outlet, product_outlet=True)
 flow_sheet.add_connection(inlet, column)
 flow_sheet.add_connection(column, outlet)
 
+# %% [markdown]
+# ### Process
 # %%
 process = Process(flow_sheet, 'lwe')
 
@@ -129,7 +138,9 @@ _ = process.add_event('wash', 'flow_sheet.inlet.c',  c_wash, load_duration)
 _ = process.add_event('elute','flow_sheet.inlet.c', list(c_elute), t_gradient_start, indices =[(0,0), (0,1)])
 
 # %% [markdown]
-# The following process simulates the load-wash-elute (LWE) CEX under overloaded conditions with a mAb feed concentration of 118.2 g/L = 0.106 mM (3.2. Model calibration). The salt and protein concentrations of the inlet during every step of the LWE are specified using `events`. A linear salt gradient is implemented for elution. The process protocol is taken from [Table A1](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#tbl0020).
+# ## Results
+# %% [markdown]
+# The above process simulates the load-wash-elute (LWE) CEX under overloaded conditions with a mAb feed concentration of 118.2 g/L = 0.106 mM (3.2. Model calibration). The salt and protein concentrations of the inlet during every step of the LWE are specified using `events`. A linear salt gradient is implemented for elution. The process protocol is taken from [Table A1](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#tbl0020).
 #
 # The plot of the `simulation_results` shows a "characteristic 'knive blade' shape" ([4.1. Standart SMA model](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#sec0090)) of the large elution peak of the protein. This is the result of complex binding behaviour between the mAb and the tentacle resin ([5. Conclusions and outlook](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#sec0105)). The Multi-State Steric Mass Action Model is able to "quantitatively reproduce" the experimental data ([Fig.&nbsp;7d, 4.3. Discussion](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#fig0035)).
 
@@ -145,6 +156,6 @@ if __name__ == '__main__':
     sec = SecondaryAxis(components = ['Salt'])
     sec.y_label = '$c_{salt}$'
 
-    simulation_results.solution.column.outlet.plot(secondary_axes=sec)
+    simulation_results.solution.column.outlet.plot(secondary_axes=sec, setup_figure_kwargs={"layout": "2_col"})
 
 # %%
