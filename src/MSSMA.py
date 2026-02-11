@@ -53,12 +53,15 @@ from CADETProcess.processModel import Process
 # %% [markdown]
 # ### Component System
 
+# %%
 component_system = ComponentSystem()
 component_system.add_component('Salt')
 component_system.add_component('A')
 
 # %% [markdown]
 # ### Binding Model
+
+#%%
 binding_model = MultistateStericMassAction(component_system, name='MultistateSMA')
 binding_model.bound_states = [1, 2]
 binding_model.is_kinetic = False
@@ -107,6 +110,7 @@ outlet = Outlet(component_system, name='outlet')
 # %% [markdown]
 # ### Flow Sheet
 
+# %%
 flow_sheet = FlowSheet(component_system)
 
 flow_sheet.add_unit(inlet)
