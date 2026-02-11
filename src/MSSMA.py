@@ -19,14 +19,15 @@
 #
 
 # %% [markdown]
-# The following example is a reproduction of part of the research results published in "Multi-state steric mass action model and case study on complex high loading behavior of mAb on ion exchange tentacle resin" (Diedrich J, Heymann W, Leweke S, et al., J Chromatogr A. 2017;1525:60-70. doi:10.1016/j.chroma.2017.09.039). <br>
-# https://pubmed.ncbi.nlm.nih.gov/29055527/
+# The following example reproduces parts of the research results published in <br>
+# <strong>Multi-state steric mass action model and case study on complex high loading behavior of mAb on ion exchange tentacle resin.</strong> (Diedrich J, Heymann W, Leweke S, et al., J Chromatogr A. 2017;1525:60-70. doi:10.1016/j.chroma.2017.09.039). <br>
+# [https://pubmed.ncbi.nlm.nih.gov/29055527/](https://pubmed.ncbi.nlm.nih.gov/29055527/)
 
 # %% [markdown]
 # In their study, Diedrich et al. examined the binding behavior of a therapeutic monoclonal antibody (mAb) from a CHO culture on Fractogel EMD SO₃⁻. This tentacle resin is used for cation exchange chromatography (CEX) with a high selectivity. Under four different loading experiments, the elution profile of the protein was examined and found to exhibit a "shoulder under overloaded conditions". This is a result of complex binding behaviour between mAb and tentacle resin. The experimental data can be replicated with CADET-Process using the Multi-State Steric Mass Action model. The mAb is assumed to have two distinct binding states with the stationary phase in the column. Components are able to alternate between the bound states with given conversion rates. They exhibit different binding behavior based on their binding state such as different sorption rates, characteristic charges and steric factors. The protein is treated with a Load-Wash-Elute process with a linear salt gradient for elution from the column.
 #
-# In the example covered in the paper, the mAb in the mobile phase is able to bind to the stationary phase in two different states. This is implemented in the binding model, where the salt component is assigned one, and the mAb component "A" is assigned two `bound_states`. `is_kinetic`is set to `False`to simulate the establishment of a rapid equilibrium between bound and unbound particles in the column. This is sensible, because of the high values of the adsorption and desorption rates (Table 3).
-# All numerical values from `adsoption_rate` to `conversion_rate` are taken from Table 3. The maximal salt concentration in the mobile phase during elution was used for `reference_liquid_phase_conc` and the column capacity for `reference_solid_phase_conc` (Table A1).  <br>
+# In the example covered in the paper, the mAb in the mobile phase is able to bind to the stationary phase in two different states. This is implemented in the binding model, where the salt component is assigned one, and the mAb component "A" is assigned two `bound_states`. `is_kinetic`is set to `False`to simulate the establishment of a rapid equilibrium between bound and unbound particles in the column. This is sensible, because of the high values of the adsorption and desorption rates ([Table 3](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#tbl0015)).
+# All numerical values from `adsoption_rate` to `conversion_rate` are taken from [Table 3](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#tbl0015). The maximal salt concentration in the mobile phase during elution was used for `reference_liquid_phase_conc` and the column capacity for `reference_solid_phase_conc` ([Table A1](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#tbl0020)).  <br>
 # The parameters of the `conversion_rate` are listed in a component-row-major ordering for all `bound_states`: <br>
 #
 # ```
@@ -36,7 +37,7 @@
 #     comp1fromBnd1toBnd0, comp1fromBnd1toBnd1
 # ]
 # ```
-# For more detail please refer [here](https://forum.cadet-web.de/t/reference-simulation-for-multi-state-sma/818/8). The conversion rates within the same bound state are set to 0.0. 
+#  The conversion rates within the same bound state are set to 0.0. For further detail please refer to the CADET forum post on [reference simulations for multi-state SMA](https://forum.cadet-web.de/t/reference-simulation-for-multi-state-sma/818/8).
 
 # %%
 import numpy as np
@@ -72,9 +73,9 @@ binding_model.reference_solid_phase_conc = 223.55  # q_ref [mM]
 
 # %% [markdown]
 # The unit operation model for this process is the General Rate Model. 
-# The `diameter` of the column is inferred from the interstitial velocity u (Table A1, 0.0011438 m/s) which is given by division of the volumetric `flow_rate` (3.1 Experimental) by the product of the `cross_section_area` and the `bed_porosity`. 
-# The inital concentrations of salt and protein (3.1 Experimental) are given by `column.c` for the mobile phase and `column.q` for the bound states. 
-# All other numerical values are taken from Table A1.
+# The `diameter` of the column is inferred from the interstitial velocity <i>u</i> ([Table A1, 0.0011438 m/s](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#tbl0020)) which is given by division of the volumetric `flow_rate` ([3.1 Experimental](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#sec0070)) by the product of the `cross_section_area` and the `bed_porosity`. 
+# The inital concentrations of salt and protein ([3.1 Experimental](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#sec0070)) are given by `column.c` for the mobile phase and `column.q` for the bound states. 
+# All other numerical values are taken from [Table A1](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#tbl0020).
 
 # %%
 #Unit Operations
@@ -108,12 +109,6 @@ flow_sheet.add_unit(outlet, product_outlet=True)
 flow_sheet.add_connection(inlet, column)
 flow_sheet.add_connection(column, outlet)
 
-
-# %% [markdown]
-# The following process simulates the load-wash-elute (LWE) CEX under overloaded conditions with a mAb feed concentration of 118.2 g/L = 0.106 mM (3.2. Model calibration). The salt and protein concentrations of the inlet during every step of the LWE are specified using `events`. A linear salt gradient is implemented for elution. The process protocol is taken from Table A1.
-#
-# The plot of the `simulation_results` shows a "characteristic 'knive blade' shape" (4.1. Standart SMA model) of the large elution peak of the protein. This is the result of complex binding behaviour between the mAb and the tentacle resin (5. Conclusions and outlook). The Multi-State Steric Mass Action Model is able to "quantitatively reproduce" the experimental data (Fig.&nbsp;7d, 4.3. Discussion).
-
 # %%
 process = Process(flow_sheet, 'lwe')
 
@@ -129,9 +124,15 @@ c_load = np.array([69.97, 0.106])
 c_wash = np.array([69.97, 0.0])
 c_elute = np.array([69.97, elution_slope])  
 
-process.add_event('load', 'flow_sheet.inlet.c', c_load)
-process.add_event('wash', 'flow_sheet.inlet.c',  c_wash, load_duration)
-process.add_event('elute','flow_sheet.inlet.c', list(c_elute), t_gradient_start, indices =[(0,0), (0,1)])
+_ = process.add_event('load', 'flow_sheet.inlet.c', c_load)
+_ = process.add_event('wash', 'flow_sheet.inlet.c',  c_wash, load_duration)
+_ = process.add_event('elute','flow_sheet.inlet.c', list(c_elute), t_gradient_start, indices =[(0,0), (0,1)])
+
+# %% [markdown]
+# The following process simulates the load-wash-elute (LWE) CEX under overloaded conditions with a mAb feed concentration of 118.2 g/L = 0.106 mM (3.2. Model calibration). The salt and protein concentrations of the inlet during every step of the LWE are specified using `events`. A linear salt gradient is implemented for elution. The process protocol is taken from [Table A1](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#tbl0020).
+#
+# The plot of the `simulation_results` shows a "characteristic 'knive blade' shape" ([4.1. Standart SMA model](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#sec0090)) of the large elution peak of the protein. This is the result of complex binding behaviour between the mAb and the tentacle resin ([5. Conclusions and outlook](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#sec0105)). The Multi-State Steric Mass Action Model is able to "quantitatively reproduce" the experimental data ([Fig.&nbsp;7d, 4.3. Discussion](https://www.sciencedirect.com/science/article/pii/S002196731731381X?via%3Dihub#fig0035)).
+
 
 # %%
 if __name__ == '__main__':
@@ -141,8 +142,9 @@ if __name__ == '__main__':
     simulation_results = process_simulator.simulate(process)
 
     from CADETProcess.plotting import SecondaryAxis
-    sec = SecondaryAxis()
-    sec.components = ['Salt']
+    sec = SecondaryAxis(components = ['Salt'])
     sec.y_label = '$c_{salt}$'
 
-    simulation_results.solution.column.outlet.plot(secondary_axis=sec)
+    simulation_results.solution.column.outlet.plot(secondary_axes=sec)
+
+# %%
